@@ -6,6 +6,8 @@ drop into pdb on failure, use ``--pdb-failures``.
 
 import pdb
 from nose.plugins.base import Plugin
+import sys
+import traceback
 
 class Pdb(Plugin):
     """
@@ -52,10 +54,14 @@ class Pdb(Plugin):
         self.debug(err)
 
     def debug(self, err):
-        import sys # FIXME why is this import here?
         ec, ev, tb = err
         stdout = sys.stdout
         sys.stdout = sys.__stdout__
+        # print out the exception and traceback (pdb doesn't do this
+        # automatically)
+        print >> sys.stderr
+        traceback.print_exception(ec,ev,tb)
+        print >> sys.stderr
         try:
             pdb.post_mortem(tb)
         finally:
